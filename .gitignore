@@ -1,4 +1,2 @@
-*.o
-*.d
-*.a
-*.so
+./Builds/LinuxMakefile/build/*
+
