@@ -484,4 +484,6 @@ build/intermediate/Debug/GuitarVoice_3d464d29.o: \
  /usr/share/juce/modules/juce_gui_extra/misc/juce_WebBrowserComponent.h \
  /usr/share/juce/modules/juce_gui_extra/misc/juce_LiveConstantEditor.h \
  /usr/share/juce/modules/juce_gui_extra/misc/juce_AnimatedAppComponent.h \
- ../../Source/GuitarVoice.h
+ ../../Source/GuitarVoice.h ../../Source/GuitarSound.h \
+ ../../Source/WaveGuide.h ../../Source/LossFilter.h \
+ ../../Source/FractionalDelayFilter.h ../../Source/WarpedIIRFilter.h

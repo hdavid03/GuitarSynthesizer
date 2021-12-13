@@ -15,15 +15,19 @@
 //==============================================================================
 /*
 */
-class SpinLockedPos  : public juce::Component
+class SpinLockedPos
 {
 public:
     SpinLockedPos();
-    ~SpinLockedPos() override;
 
-    void paint (juce::Graphics&) override;
-    void resized() override;
+    // Wait-free, but setting new info may fail if the main thread is currently
+    // calling `get`. This is unlikely to matter in practice because
+    // we'll be calling `set` much more frequently than `get`.
+    void set(const juce::AudioPlayHead::CurrentPositionInfo& newInfo);
+    juce::AudioPlayHead::CurrentPositionInfo get() const noexcept;
 
 private:
+    juce::SpinLock mutex;
+    juce::AudioPlayHead::CurrentPositionInfo info;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpinLockedPos)
 };

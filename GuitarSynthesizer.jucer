@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="n6sday" name="GuitarSynthesizer" projectType="audioplug"
-              useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1"
+              pluginCharacteristicsValue="pluginIsSynth">
   <MAINGROUP id="O6vBaj" name="GuitarSynthesizer">
     <GROUP id="{9DC7E6CC-5B92-E71D-4849-6C6B48CE98EA}" name="Source">
       <FILE id="IMEgnM" name="WaveGuide.cpp" compile="1" resource="0" file="Source/WaveGuide.cpp"/>

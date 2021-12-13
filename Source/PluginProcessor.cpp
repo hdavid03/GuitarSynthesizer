@@ -8,6 +8,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "PluginProcessor.h"
+#include "PluginEditor.h"
 
 //==============================================================================
 GuitarSynthesizerAudioProcessor::GuitarSynthesizerAudioProcessor()
@@ -19,9 +21,14 @@ GuitarSynthesizerAudioProcessor::GuitarSynthesizerAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+    state(*this, nullptr, "state",
+        { std::make_unique<juce::AudioParameterFloat>("gain",  "Gain", juce::NormalisableRange<float>(0.0f, 1.0f), 0.9f) })
 #endif
 {
+    state.state.addChild({ "uiState", { { "width",  720 }, { "height", 240 } }, {} }, -1, nullptr);
+    guitarBodyModel.initialize();
+    initialiseSynth();
 }
 
 GuitarSynthesizerAudioProcessor::~GuitarSynthesizerAudioProcessor()
@@ -68,7 +75,7 @@ double GuitarSynthesizerAudioProcessor::getTailLengthSeconds() const
 
 int GuitarSynthesizerAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
+    return 0;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
@@ -93,14 +100,15 @@ void GuitarSynthesizerAudioProcessor::changeProgramName (int index, const juce::
 //==============================================================================
 void GuitarSynthesizerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    setProcessingPrecision(juce::AudioProcessor::ProcessingPrecision::doublePrecision);
+    synth.setCurrentPlaybackSampleRate(sampleRate);
+    keyboardState.reset();
+    reset();
 }
 
 void GuitarSynthesizerAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    keyboardState.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -110,10 +118,6 @@ bool GuitarSynthesizerAudioProcessor::isBusesLayoutSupported (const BusesLayout&
     juce::ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
@@ -129,39 +133,47 @@ bool GuitarSynthesizerAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 }
 #endif
 
+void GuitarSynthesizerAudioProcessor::processBlock(juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages)
+{
+    jassert(isUsingDoublePrecision());
+    auto gainParamValue = state.getParameter("gain")->getValue();
+    auto numSamples = buffer.getNumSamples();
+    auto numOfOutputChannels = getTotalNumOutputChannels();
+
+    for (auto i = getTotalNumInputChannels(); i < numOfOutputChannels; ++i)
+        buffer.clear(i, 0, numSamples);
+
+    keyboardState.processNextMidiBuffer(midiMessages, 0, numSamples, true);
+    synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+
+    guitarBodyModel.filterBuffer(buffer);
+    // Apply our gain change to the outgoing data..
+    gainParamValue *= 1e-04;
+    //gainParamValue *= 1e+02;
+    applyGain(buffer, gainParamValue);
+    updateCurrentTimeInfoFromHost();
+}
+
 void GuitarSynthesizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    jassert(!isUsingDoublePrecision());
+    auto gainParamValue = state.getParameter("gain")->getValue();
+    auto numSamples = buffer.getNumSamples();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    for (auto i = getTotalNumInputChannels(); i < getTotalNumOutputChannels(); ++i)
+        buffer.clear(i, 0, numSamples);
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    keyboardState.processNextMidiBuffer(midiMessages, 0, numSamples, true);
+    synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+    applyGain(buffer, gainParamValue);
 
-        // ..do something to the data...
-    }
+    updateCurrentTimeInfoFromHost();
 }
 
 //==============================================================================
 bool GuitarSynthesizerAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor* GuitarSynthesizerAudioProcessor::createEditor()
@@ -172,20 +184,87 @@ juce::AudioProcessorEditor* GuitarSynthesizerAudioProcessor::createEditor()
 //==============================================================================
 void GuitarSynthesizerAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+
 }
 
 void GuitarSynthesizerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    if (auto xmlState = getXmlFromBinary(data, sizeInBytes))
+        state.replaceState(juce::ValueTree::fromXml(*xmlState));
 }
 
+juce::AudioProcessor::TrackProperties GuitarSynthesizerAudioProcessor::getTrackProperties() const
+{
+    const juce::ScopedLock sl(trackPropertiesLock);
+    return trackProperties;
+}
+
+void GuitarSynthesizerAudioProcessor::reset()
+{
+    guitarBodyModel.initialize();
+}
+
+bool GuitarSynthesizerAudioProcessor::supportsDoublePrecisionProcessing() const
+{
+    return true;
+}
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new GuitarSynthesizerAudioProcessor();
+}
+
+void GuitarSynthesizerAudioProcessor::updateTrackProperties(const TrackProperties& properties)
+{
+    {
+        const juce::ScopedLock sl(trackPropertiesLock);
+        trackProperties = properties;
+    }
+
+    juce::MessageManager::callAsync([this]
+        {
+            if (auto* editor = dynamic_cast<GuitarSynthesizerAudioProcessorEditor*> (getActiveEditor()))
+                editor->updateTrackProperties();
+        });
+}
+
+void GuitarSynthesizerAudioProcessor::applyGain(juce::AudioBuffer<float>& buffer, float gainLevel)
+{
+    for (auto channel = 0; channel < getTotalNumOutputChannels(); ++channel)
+        buffer.applyGain(channel, 0, buffer.getNumSamples(), gainLevel);
+}
+
+void GuitarSynthesizerAudioProcessor::applyGain(juce::AudioBuffer<double>& buffer, float gainLevel)
+{
+    for (auto channel = 0; channel < getTotalNumOutputChannels(); ++channel)
+        buffer.applyGain(channel, 0, buffer.getNumSamples(), gainLevel);
+}
+
+void GuitarSynthesizerAudioProcessor::updateCurrentTimeInfoFromHost()
+{
+    const auto newInfo = [&]
+    {
+        if (auto* ph = getPlayHead())
+        {
+            juce::AudioPlayHead::CurrentPositionInfo result;
+
+            if (ph->getCurrentPosition(result))
+                return result;
+        }
+        juce::AudioPlayHead::CurrentPositionInfo result;
+        result.resetToDefault();
+        return result;
+    }();
+
+    lastPosInfo.set(newInfo);
+}
+
+
+void GuitarSynthesizerAudioProcessor::initialiseSynth()
+{
+    auto numVoices = 6;
+    for (auto i = 0; i < numVoices; ++i)
+        synth.addVoice(new GuitarVoice());
+    synth.addSound(new GuitarSound());
 }

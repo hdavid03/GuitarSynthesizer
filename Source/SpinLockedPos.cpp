@@ -12,40 +12,22 @@
 #include "SpinLockedPos.h"
 
 //==============================================================================
-SpinLockedPos::SpinLockedPos()
-{
-    // In your constructor, you should add any child components, and
-    // initialise any special settings that your component needs.
+SpinLockedPos::SpinLockedPos() { info.resetToDefault(); }
 
+// Wait-free, but setting new info may fail if the main thread is currently
+// calling `get`. This is unlikely to matter in practice because
+// we'll be calling `set` much more frequently than `get`.
+void SpinLockedPos::set(const juce::AudioPlayHead::CurrentPositionInfo& newInfo)
+{
+    const juce::SpinLock::ScopedTryLockType lock(mutex);
+
+    if (lock.isLocked())
+        info = newInfo;
 }
 
-SpinLockedPos::~SpinLockedPos()
+
+juce::AudioPlayHead::CurrentPositionInfo SpinLockedPos::get() const noexcept
 {
-}
-
-void SpinLockedPos::paint (juce::Graphics& g)
-{
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
-
-       You should replace everything in this method with your own
-       drawing code..
-    */
-
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
-
-    g.setColour (juce::Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-
-    g.setColour (juce::Colours::white);
-    g.setFont (14.0f);
-    g.drawText ("SpinLockedPos", getLocalBounds(),
-                juce::Justification::centred, true);   // draw some placeholder text
-}
-
-void SpinLockedPos::resized()
-{
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
-
+    const juce::SpinLock::ScopedLockType lock(mutex);
+    return info;
 }

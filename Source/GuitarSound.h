@@ -15,14 +15,13 @@
 //==============================================================================
 /*
 */
-class GuitarSound  : public juce::Component
+class GuitarSound  : public juce::SynthesiserSound
 {
 public:
     GuitarSound();
-    ~GuitarSound() override;
 
-    void paint (juce::Graphics&) override;
-    void resized() override;
+    bool appliesToNote(int /*midiNoteNumber*/) override;
+    bool appliesToChannel(int /*midiChannel*/) override;
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarSound)

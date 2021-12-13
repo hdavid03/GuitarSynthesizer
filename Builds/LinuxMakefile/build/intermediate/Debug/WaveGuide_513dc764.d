@@ -1,5 +1,5 @@
 build/intermediate/Debug/WaveGuide_513dc764.o: ../../Source/WaveGuide.cpp \
- ../../JuceLibraryCode/JuceHeader.h \
+ ../../Source/WaveGuide.h ../../JuceLibraryCode/JuceHeader.h \
  /usr/share/juce/modules/juce_audio_basics/juce_audio_basics.h \
  /usr/share/juce/modules/juce_core/juce_core.h \
  /usr/share/juce/modules/juce_core/system/juce_TargetPlatform.h \
@@ -484,4 +484,4 @@ build/intermediate/Debug/WaveGuide_513dc764.o: ../../Source/WaveGuide.cpp \
  /usr/share/juce/modules/juce_gui_extra/misc/juce_WebBrowserComponent.h \
  /usr/share/juce/modules/juce_gui_extra/misc/juce_LiveConstantEditor.h \
  /usr/share/juce/modules/juce_gui_extra/misc/juce_AnimatedAppComponent.h \
- ../../Source/WaveGuide.h
+ ../../Source/LossFilter.h ../../Source/FractionalDelayFilter.h

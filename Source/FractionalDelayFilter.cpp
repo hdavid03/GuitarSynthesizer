@@ -7,45 +7,24 @@
 
   ==============================================================================
 */
-
-#include <JuceHeader.h>
 #include "FractionalDelayFilter.h"
 
 //==============================================================================
 FractionalDelayFilter::FractionalDelayFilter()
 {
-    // In your constructor, you should add any child components, and
-    // initialise any special settings that your component needs.
-
 }
 
-FractionalDelayFilter::~FractionalDelayFilter()
+double FractionalDelayFilter::filterSample(double sample)
 {
+    y = a * sample + x - a * y;
+    x = sample;
+    return y;
 }
 
-void FractionalDelayFilter::paint (juce::Graphics& g)
+void FractionalDelayFilter::initialize(double fractionedSampleNumber, size_t roundedSampleNumber)
 {
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
-
-       You should replace everything in this method with your own
-       drawing code..
-    */
-
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
-
-    g.setColour (juce::Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-
-    g.setColour (juce::Colours::white);
-    g.setFont (14.0f);
-    g.drawText ("FractionalDelayFilter", getLocalBounds(),
-                juce::Justification::centred, true);   // draw some placeholder text
-}
-
-void FractionalDelayFilter::resized()
-{
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
-
+    auto D = fractionedSampleNumber - 2 * roundedSampleNumber;
+    a = (1 - D) / (1 + D);
+    x = 0.0;
+    y = 0.0;
 }

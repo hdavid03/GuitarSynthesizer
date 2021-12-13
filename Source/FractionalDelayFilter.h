@@ -9,21 +9,20 @@
 */
 
 #pragma once
-
-#include <JuceHeader.h>
+#include <cstddef>
 
 //==============================================================================
 /*
 */
-class FractionalDelayFilter  : public juce::Component
+
+class FractionalDelayFilter
 {
 public:
     FractionalDelayFilter();
-    ~FractionalDelayFilter() override;
-
-    void paint (juce::Graphics&) override;
-    void resized() override;
-
+    void initialize(double, size_t);
+    double filterSample(double);
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FractionalDelayFilter)
+    double a = 0.0;
+    double y = 0.0;
+    double x = 0.0;
 };

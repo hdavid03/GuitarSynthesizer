@@ -7,45 +7,54 @@
 
   ==============================================================================
 */
-
-#include <JuceHeader.h>
 #include "WaveGuide.h"
+#include <cmath>
 
-//==============================================================================
+void WaveGuide::shiftDelayLines()
+{
+	size_t step = lastArrayIndex - dataPointer;
+	auto tmp = forwardDelayLine[dataPointer];
+	forwardDelayLine[dataPointer] = reflection * backwardDelayLine[step];
+	backwardDelayLine[step] = reflection * fractionalDelayFilter.filterSample(lossFilter.filterSample(tmp));
+	dataPointer = dataPointer == 0 ? lastArrayIndex - 1 : dataPointer - 1;
+}
+
 WaveGuide::WaveGuide()
 {
-    // In your constructor, you should add any child components, and
-    // initialise any special settings that your component needs.
-
 }
 
-WaveGuide::~WaveGuide()
+void WaveGuide::loadDelayLines()
 {
+	backwardDelayLine.resize(length);
+	forwardDelayLine.resize(length);
+	for (size_t i = 0; i < triggerPoint; i++)
+	{
+		backwardDelayLine[i] = deviation * i / (triggerPoint - 1);
+	}
+	for (size_t i = triggerPoint; i < length; i++)
+	{
+		backwardDelayLine[i] = deviation * (length - i - 1) / (length - triggerPoint);
+	}
+	forwardDelayLine.operator=(backwardDelayLine);
 }
 
-void WaveGuide::paint (juce::Graphics& g)
+void WaveGuide::initialize(double midiNoteInHertz, double sampleRateInHertz)
 {
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
-
-       You should replace everything in this method with your own
-       drawing code..
-    */
-
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
-
-    g.setColour (juce::Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-
-    g.setColour (juce::Colours::white);
-    g.setFont (14.0f);
-    g.drawText ("WaveGuide", getLocalBounds(),
-                juce::Justification::centred, true);   // draw some placeholder text
+	auto fraction = sampleRateInHertz / midiNoteInHertz;
+	length = (size_t)fraction / 2;
+	double dx = stringLengthInMeter / fraction;
+	correctionMultiplier = 2 * tension / dx / sampleRateInHertz;
+	lastArrayIndex = length - 1;
+	dataPointer = lastArrayIndex;
+	fractionalDelayFilter.initialize(fraction, length);
+	lossFilter.initialize();
+	triggerPoint = (size_t)(0.25 * length);
+	deviation = 3e-03;
 }
 
-void WaveGuide::resized()
+double WaveGuide::getSample()
 {
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
-
+	shiftDelayLines();
+	double sample = forwardDelayLine[dataPointer];
+	return correctionMultiplier * sample;
 }

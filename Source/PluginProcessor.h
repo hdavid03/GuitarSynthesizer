@@ -9,6 +9,10 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "SpinLockedPos.h"
+#include "GuitarSound.h"
+#include "GuitarVoice.h"
+#include "WarpedIIRFilter.h"
 
 //==============================================================================
 /**
@@ -29,6 +33,7 @@ public:
    #endif
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock(juce::AudioBuffer<double>&, juce::MidiBuffer&) override;
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -52,8 +57,30 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    TrackProperties getTrackProperties() const;
+    void updateTrackProperties(const TrackProperties& properties) override;
+    void reset() override;
+
+    bool supportsDoublePrecisionProcessing() const override;
+
+    juce::MidiKeyboardState keyboardState;
+    SpinLockedPos lastPosInfo;
+    juce::AudioProcessorValueTreeState state;
 
 private:
     //==============================================================================
+    void initialiseSynth();
+    void updateCurrentTimeInfoFromHost();
+
+    int delayPosition = 0;
+
+    juce::Synthesiser synth;
+    juce::CriticalSection trackPropertiesLock;
+    TrackProperties trackProperties;
+    WarpedIIRFilter guitarBodyModel;
+
+    void applyGain(juce::AudioBuffer<float>& buffer, float gainLevel);
+    void applyGain(juce::AudioBuffer<double>& buffer, float gainLevel);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GuitarSynthesizerAudioProcessor)
 };

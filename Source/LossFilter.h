@@ -10,20 +10,15 @@
 
 #pragma once
 
-#include <JuceHeader.h>
-
-//==============================================================================
-/*
-*/
-class LossFilter  : public juce::Component
+class LossFilter
 {
 public:
     LossFilter();
-    ~LossFilter() override;
-
-    void paint (juce::Graphics&) override;
-    void resized() override;
+    double filterSample(double);
+    void initialize();
 
 private:
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LossFilter)
+    const double g = 0.99688;
+    const double a = -0.212;
+    double y = 0.0;
 };

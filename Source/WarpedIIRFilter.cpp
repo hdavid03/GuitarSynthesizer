@@ -12,40 +12,60 @@
 #include "WarpedIIRFilter.h"
 
 //==============================================================================
+const size_t WarpedIIRFilter::degree = 480;
+
 WarpedIIRFilter::WarpedIIRFilter()
 {
-    // In your constructor, you should add any child components, and
-    // initialise any special settings that your component needs.
-
+    auxiliaryArray.resize(degree);
+    std::fill(auxiliaryArray.begin(), auxiliaryArray.end(), 0.0);
 }
 
 WarpedIIRFilter::~WarpedIIRFilter()
 {
 }
 
-void WarpedIIRFilter::paint (juce::Graphics& g)
+double WarpedIIRFilter::filterSample(double inputSample)
 {
-    /* This demo code just fills the component's background and
-       draws some placeholder text to get you started.
+    auto outputSample = 0.0;
+    auto input = inputSample;
 
-       You should replace everything in this method with your own
-       drawing code..
-    */
+    for (size_t i = 0; i < degree; i++)
+    {
+        input -= sigma[i + 1] * auxiliaryArray[i];
+    }
+    auto temporary = auxiliaryArray[0];
+    auxiliaryArray[0] = input / sigma[0];
+    outputSample = auxiliaryArray[0] * beta[0];
 
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
-
-    g.setColour (juce::Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-
-    g.setColour (juce::Colours::white);
-    g.setFont (14.0f);
-    g.drawText ("WarpedIIRFilter", getLocalBounds(),
-                juce::Justification::centred, true);   // draw some placeholder text
+    for (size_t i = 1; i < degree; i++)
+    {
+        auto swap = auxiliaryArray[i];
+        auxiliaryArray[i] = lambda * (auxiliaryArray[i] - auxiliaryArray[i - 1]) + temporary;
+        temporary = swap;
+        outputSample += auxiliaryArray[i] * beta[i];
+    }
+    return outputSample;
 }
 
-void WarpedIIRFilter::resized()
+void WarpedIIRFilter::filterBuffer(juce::AudioBuffer<double>& buffer)
 {
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
+    auto numOfSamples = buffer.getNumSamples();
 
+    auto src = buffer.getReadPointer(0);
+    for (auto i = 0; i < numOfSamples; ++i)
+    {
+        double newValue = filterSample(src[i]);
+        buffer.setSample(0, i, newValue);
+        buffer.setSample(1, i, newValue);
+    }
+}
+
+constexpr size_t WarpedIIRFilter::getDegree()
+{
+    return degree;
+}
+
+void WarpedIIRFilter::initialize()
+{
+    std::fill(auxiliaryArray.begin(), auxiliaryArray.end(), 0.0);
 }
