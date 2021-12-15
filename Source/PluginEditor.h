@@ -15,7 +15,7 @@
 /**
 */
 class GuitarSynthesizerAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                               private juce::Timer,
+                                               public juce::Button::Listener,
                                                private juce::Value::Listener
 {
 public:
@@ -25,22 +25,25 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+    void buttonClicked(juce::Button*) override;
     void updateTrackProperties();
     int getControlParameterIndex(Component&) override;
     void hostMIDIControllerIsAvailable(bool) override;
-    void timerCallback() override;
+    juce::ToggleButton sustainButton;
+    static bool sustainIsActive;
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     GuitarSynthesizerAudioProcessor& getProcessor() const;
     void valueChanged(juce::Value&) override;
-    void updateTimecodeDisplay(juce::AudioPlayHead::CurrentPositionInfo pos);
+    void updateSustainState(juce::Button*);
     GuitarSynthesizerAudioProcessor& audioProcessor;
     juce::MidiKeyboardComponent midiKeyboard;
 
-    juce::Label timecodeDisplayLabel,
-        gainLabel{ {}, "Volume :" };
+    juce::Label guitarTypeLabel{ {}, "Epihone DR-100 Acoustic Guitar" };
+    juce::Label gainLabel{ {}, "Volume :" };
+    juce::Label sustainLabel{ {}, "Sustain" };
 
     juce::Slider gainSlider;
     juce::AudioProcessorValueTreeState::SliderAttachment gainAttachment;

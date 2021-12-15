@@ -16,7 +16,7 @@ void WaveGuide::shiftDelayLines()
 	auto tmp = forwardDelayLine[dataPointer];
 	forwardDelayLine[dataPointer] = reflection * backwardDelayLine[step];
 	backwardDelayLine[step] = reflection * fractionalDelayFilter.filterSample(lossFilter.filterSample(tmp));
-	dataPointer = dataPointer == 0 ? lastArrayIndex - 1 : dataPointer - 1;
+	dataPointer = dataPointer == 0 ? lastArrayIndex : dataPointer - 1;
 }
 
 WaveGuide::WaveGuide()
@@ -38,18 +38,18 @@ void WaveGuide::loadDelayLines()
 	forwardDelayLine.operator=(backwardDelayLine);
 }
 
-void WaveGuide::initialize(double midiNoteInHertz, double sampleRateInHertz)
+void WaveGuide::initialize(double midiNoteInHertz, double sampleRateInHertz, float velocity)
 {
-	auto fraction = sampleRateInHertz / midiNoteInHertz;
+	lossFilter.initialize();
+	auto fraction = sampleRateInHertz / midiNoteInHertz - lossFilter.getPhaseDelay(sampleRateInHertz, midiNoteInHertz);
 	length = (size_t)fraction / 2;
 	double dx = stringLengthInMeter / fraction;
 	correctionMultiplier = 2 * tension / dx / sampleRateInHertz;
 	lastArrayIndex = length - 1;
 	dataPointer = lastArrayIndex;
 	fractionalDelayFilter.initialize(fraction, length);
-	lossFilter.initialize();
 	triggerPoint = (size_t)(0.25 * length);
-	deviation = 3e-03;
+	deviation = velocity * 3e-03;
 }
 
 double WaveGuide::getSample()

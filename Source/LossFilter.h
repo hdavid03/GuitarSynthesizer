@@ -16,9 +16,10 @@ public:
     LossFilter();
     double filterSample(double);
     void initialize();
+    double getPhaseDelay(double, double);
 
 private:
-    const double g = 0.99688;
-    const double a = -0.212;
+    const double g = 0.99572;
+    const double a = -0.2414;
     double y = 0.0;
 };

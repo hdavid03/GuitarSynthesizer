@@ -10,6 +10,8 @@
 #include "PluginEditor.h"
 
 //==============================================================================
+bool GuitarSynthesizerAudioProcessorEditor::sustainIsActive = false;
+
 GuitarSynthesizerAudioProcessorEditor::GuitarSynthesizerAudioProcessorEditor (GuitarSynthesizerAudioProcessor& p)
 : AudioProcessorEditor(p),
   audioProcessor(p),
@@ -26,14 +28,21 @@ GuitarSynthesizerAudioProcessorEditor::GuitarSynthesizerAudioProcessorEditor (Gu
     midiKeyboard.setAvailableRange(40, 84);
     addAndMakeVisible(midiKeyboard);
 
-    addAndMakeVisible(timecodeDisplayLabel);
-    timecodeDisplayLabel.setFont(juce::Font(juce::Font::getDefaultMonospacedFontName(), 22.0f, juce::Font::plain));
+    addAndMakeVisible(guitarTypeLabel);
+    guitarTypeLabel.setFont(juce::Font(juce::Font::getDefaultMonospacedFontName(), 22.0f, juce::Font::plain));
+
+    sustainButton.setAccessible(true);
+    sustainButton.setColour(juce::ToggleButton::tickColourId, juce::Colours::aqua);
+    addAndMakeVisible(sustainButton);
+    sustainButton.onClick = [this]()
+    {
+        updateSustainState(&sustainButton);
+    };
+    sustainLabel.attachToComponent(&sustainButton, true);
 
     setSize(450, 240);
 
     updateTrackProperties();
-
-    startTimerHz(30);
 }
 
 GuitarSynthesizerAudioProcessorEditor::~GuitarSynthesizerAudioProcessorEditor()
@@ -51,12 +60,18 @@ void GuitarSynthesizerAudioProcessorEditor::resized()
 {
     auto r = getLocalBounds().reduced(8);
 
-    timecodeDisplayLabel.setBounds(r.removeFromTop(26));
+    guitarTypeLabel.setBounds(r.removeFromTop(26));
     midiKeyboard.setBounds(r.removeFromBottom(70));
+    sustainButton.setBounds(r.removeFromRight(40));
 
     r.removeFromTop(20);
     auto sliderArea = r.removeFromTop(60);
     gainSlider.setBounds(sliderArea.removeFromLeft(juce::jmin(180, sliderArea.getWidth() / 2)));
+}
+
+void GuitarSynthesizerAudioProcessorEditor::buttonClicked(juce::Button* button)
+{
+
 }
 
 void GuitarSynthesizerAudioProcessorEditor::updateTrackProperties()
@@ -82,10 +97,6 @@ void GuitarSynthesizerAudioProcessorEditor::hostMIDIControllerIsAvailable(bool c
     midiKeyboard.setVisible(!controllerIsAvailable);
 }
 
-void GuitarSynthesizerAudioProcessorEditor::timerCallback()
-{
-    updateTimecodeDisplay(getProcessor().lastPosInfo.get());
-}
 
 GuitarSynthesizerAudioProcessor& GuitarSynthesizerAudioProcessorEditor::getProcessor() const
 {
@@ -97,9 +108,11 @@ void GuitarSynthesizerAudioProcessorEditor::valueChanged(juce::Value&)
     setSize(lastUIWidth.getValue(), lastUIHeight.getValue());
 }
 
-void GuitarSynthesizerAudioProcessorEditor::updateTimecodeDisplay(juce::AudioPlayHead::CurrentPositionInfo pos)
+void GuitarSynthesizerAudioProcessorEditor::updateSustainState(juce::Button* button)
 {
-    juce::MemoryOutputStream displayText;
-    displayText << "Epihone DR-100 Acoustic Guitar";
-    timecodeDisplayLabel.setText(displayText.toString(), juce::dontSendNotification);
+    sustainIsActive = button->getToggleState();
+    if (!sustainIsActive)
+    {
+
+    }
 }

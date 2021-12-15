@@ -20,7 +20,7 @@ class WaveGuide
 public:
 	WaveGuide();
 	void loadDelayLines();
-	void initialize(double, double);
+	void initialize(double, double, float);
 	double getSample();
 
 private:
@@ -33,7 +33,7 @@ private:
 	size_t dataPointer = 0;
 	size_t lastArrayIndex = 0;
 	double correctionMultiplier = 0.0;
-	const double stringLengthInMeter = 0.65;
+	const double stringLengthInMeter = 0.6477;
 	const double tension = 13.06;
 	const int reflection = -1;
 	double deviation = 0.0;

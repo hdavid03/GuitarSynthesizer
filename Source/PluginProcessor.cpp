@@ -109,6 +109,7 @@ void GuitarSynthesizerAudioProcessor::prepareToPlay (double sampleRate, int samp
 void GuitarSynthesizerAudioProcessor::releaseResources()
 {
     keyboardState.reset();
+    guitarBodyModel.initialize();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -148,9 +149,9 @@ void GuitarSynthesizerAudioProcessor::processBlock(juce::AudioBuffer<double>& bu
 
     guitarBodyModel.filterBuffer(buffer);
     // Apply our gain change to the outgoing data..
-    gainParamValue *= 1e-04;
-    //gainParamValue *= 1e+02;
+    gainParamValue *= 6e-06;
     applyGain(buffer, gainParamValue);
+
     updateCurrentTimeInfoFromHost();
 }
 

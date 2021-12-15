@@ -51,10 +51,9 @@ void WarpedIIRFilter::filterBuffer(juce::AudioBuffer<double>& buffer)
 {
     auto numOfSamples = buffer.getNumSamples();
 
-    auto src = buffer.getReadPointer(0);
-    for (auto i = 0; i < numOfSamples; ++i)
+    for (auto i = 0; i < numOfSamples; i++)
     {
-        double newValue = filterSample(src[i]);
+        double newValue = filterSample(buffer.getSample(0, i));
         buffer.setSample(0, i, newValue);
         buffer.setSample(1, i, newValue);
     }
