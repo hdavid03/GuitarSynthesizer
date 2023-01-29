@@ -17,8 +17,6 @@
 //==============================================================================
 GuitarVoice::GuitarVoice()
 {
-    // In your constructor, you should add any child components, and
-    // initialise any special settings that your component needs.
 }
 
 bool GuitarVoice::canPlaySound(juce::SynthesiserSound* sound)
@@ -62,21 +60,19 @@ void GuitarVoice::controllerMoved(int /*controllerNumber*/, int /*newValue*/)
 
 void GuitarVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-        if (tailOff)
+    if (tailOff)
+    {
+        while (--numSamples >= 0)
         {
-            while (--numSamples >= 0)
-            {
-                auto currentSample = stringModel.getSample();
-                auto sampleToOutput = (currentSample - lastSample) * sampleRate;
+            auto currentSample = stringModel.getSample();
+            auto sampleToOutput = (currentSample - lastSample) * sampleRate;
 
-                for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
-                    outputBuffer.addSample(i, startSample, sampleToOutput);
-
-                ++startSample;
-                lastSample = currentSample;
-
-            }
+            for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
+                outputBuffer.addSample(i, startSample, sampleToOutput);
+            ++startSample;
+            lastSample = currentSample;
         }
+    }
 }
 
 void GuitarVoice::renderNextBlock(juce::AudioBuffer<double>& outputBuffer, int startSample, int numSamples)

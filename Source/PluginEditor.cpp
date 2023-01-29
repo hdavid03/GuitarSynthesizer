@@ -111,8 +111,4 @@ void GuitarSynthesizerAudioProcessorEditor::valueChanged(juce::Value&)
 void GuitarSynthesizerAudioProcessorEditor::updateSustainState(juce::Button* button)
 {
     sustainIsActive = button->getToggleState();
-    if (!sustainIsActive)
-    {
-
-    }
 }
