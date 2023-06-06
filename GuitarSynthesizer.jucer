@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="n6sday" name="GuitarSynthesizer" projectType="audioplug"
-              useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1"
-              pluginCharacteristicsValue="pluginIsSynth" displaySplashScreen="1">
-  <MAINGROUP id="O6vBaj" name="GuitarSynthesizer">
-    <GROUP id="{9DC7E6CC-5B92-E71D-4849-6C6B48CE98EA}" name="Source">
-      <FILE id="IMEgnM" name="WaveGuide.cpp" compile="1" resource="0" file="Source/WaveGuide.cpp"/>
-      <FILE id="QJNkO3" name="WaveGuide.h" compile="0" resource="0" file="Source/WaveGuide.h"/>
-      <FILE id="aiWudf" name="SpinLockedPos.cpp" compile="1" resource="0"
-            file="Source/SpinLockedPos.cpp"/>
-      <FILE id="l3LCnj" name="SpinLockedPos.h" compile="0" resource="0" file="Source/SpinLockedPos.h"/>
-      <FILE id="OPapL4" name="WarpedIIRFilter.cpp" compile="1" resource="0"
-            file="Source/WarpedIIRFilter.cpp"/>
-      <FILE id="xSqzxq" name="WarpedIIRFilter.h" compile="0" resource="0"
-            file="Source/WarpedIIRFilter.h"/>
-      <FILE id="tugaBk" name="GuitarVoice.cpp" compile="1" resource="0" file="Source/GuitarVoice.cpp"/>
-      <FILE id="HywjIr" name="GuitarVoice.h" compile="0" resource="0" file="Source/GuitarVoice.h"/>
-      <FILE id="R2Pqdt" name="GuitarSound.cpp" compile="1" resource="0" file="Source/GuitarSound.cpp"/>
-      <FILE id="wLNWPx" name="GuitarSound.h" compile="0" resource="0" file="Source/GuitarSound.h"/>
-      <FILE id="XikLc6" name="LossFilter.cpp" compile="1" resource="0" file="Source/LossFilter.cpp"/>
-      <FILE id="DEGwj0" name="LossFilter.h" compile="0" resource="0" file="Source/LossFilter.h"/>
-      <FILE id="JtgPUi" name="FractionalDelayFilter.cpp" compile="1" resource="0"
+<JUCERPROJECT id="DnDlSJ" name="GuitarSynthesizer" projectType="audioplug"
+              useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
+              jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn">
+  <MAINGROUP id="mIllgs" name="GuitarSynthesizer">
+    <GROUP id="{B66FB3AA-0659-70C3-DD1A-CCE656882D62}" name="Source">
+      <FILE id="wMT9Iq" name="FractionalDelayFilter.cpp" compile="1" resource="0"
             file="Source/FractionalDelayFilter.cpp"/>
-      <FILE id="qcVQGQ" name="FractionalDelayFilter.h" compile="0" resource="0"
+      <FILE id="pGzEyR" name="FractionalDelayFilter.h" compile="0" resource="0"
             file="Source/FractionalDelayFilter.h"/>
-      <FILE id="NuDVFw" name="PluginProcessor.cpp" compile="1" resource="0"
+      <FILE id="GryN9p" name="GuitarSound.cpp" compile="1" resource="0" file="Source/GuitarSound.cpp"/>
+      <FILE id="fmbU1y" name="GuitarSound.h" compile="0" resource="0" file="Source/GuitarSound.h"/>
+      <FILE id="BQA8c6" name="GuitarVoice.cpp" compile="1" resource="0" file="Source/GuitarVoice.cpp"/>
+      <FILE id="PKws3u" name="GuitarVoice.h" compile="0" resource="0" file="Source/GuitarVoice.h"/>
+      <FILE id="HxpTrl" name="LossFilter.cpp" compile="1" resource="0" file="Source/LossFilter.cpp"/>
+      <FILE id="WbRP7J" name="LossFilter.h" compile="0" resource="0" file="Source/LossFilter.h"/>
+      <FILE id="whUPwD" name="SpinLockedPos.cpp" compile="1" resource="0"
+            file="Source/SpinLockedPos.cpp"/>
+      <FILE id="yNL9nJ" name="SpinLockedPos.h" compile="0" resource="0" file="Source/SpinLockedPos.h"/>
+      <FILE id="Bkk0zg" name="WarpedIIRFilter.cpp" compile="1" resource="0"
+            file="Source/WarpedIIRFilter.cpp"/>
+      <FILE id="BgyNMc" name="WarpedIIRFilter.h" compile="0" resource="0"
+            file="Source/WarpedIIRFilter.h"/>
+      <FILE id="bw5TuN" name="WaveGuide.cpp" compile="1" resource="0" file="Source/WaveGuide.cpp"/>
+      <FILE id="D1fgnN" name="WaveGuide.h" compile="0" resource="0" file="Source/WaveGuide.h"/>
+      <FILE id="K0OPFj" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
-      <FILE id="fvp7yM" name="PluginProcessor.h" compile="0" resource="0"
+      <FILE id="hg3eqE" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
-      <FILE id="qalQTk" name="PluginEditor.cpp" compile="1" resource="0"
+      <FILE id="aDFSVC" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
-      <FILE id="n89GsD" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="WbzCDL" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
@@ -41,18 +41,18 @@
         <CONFIGURATION isDebug="0" name="Release" targetName="GuitarSynthesizer"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_audio_basics" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_core" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_events" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../../../../usr/share/juce/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_core" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_events" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../usr/share/juce/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../usr/share/juce/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>

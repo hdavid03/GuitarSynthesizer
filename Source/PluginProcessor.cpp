@@ -6,6 +6,7 @@
   ==============================================================================
 */
 
+#include "JucePluginDefines.h"
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
