@@ -12,6 +12,7 @@
 #include <JuceHeader.h>
 #include "GuitarVoice.h"
 #include "PluginEditor.h"
+#include <iostream>
 
 
 //==============================================================================
@@ -28,8 +29,10 @@ void GuitarVoice::startNote(int midiNoteNumber, float velocity,
     juce::SynthesiserSound* /*sound*/,
     int /*currentPitchWheelPosition*/)
 {
+    std::cout << "startNote" << std::endl;
     if (midiNoteNumber > 39 && midiNoteNumber < 85)
     {
+        std::cout << "startNote:if ok" << std::endl;
         lastSample = 0.0;
         tailOff = true;
         auto cyclesPerSecond = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);

@@ -59,6 +59,18 @@ void WarpedIIRFilter::filterBuffer(juce::AudioBuffer<double>& buffer)
     }
 }
 
+void WarpedIIRFilter::filterBuffer(juce::AudioBuffer<float>& buffer)
+{
+    auto numOfSamples = buffer.getNumSamples();
+
+    for (auto i = 0; i < numOfSamples; i++)
+    {
+        double newValue = filterSample(buffer.getSample(0, i));
+        buffer.setSample(0, i, newValue);
+        buffer.setSample(1, i, newValue);
+    }
+}
+
 constexpr size_t WarpedIIRFilter::getDegree()
 {
     return degree;

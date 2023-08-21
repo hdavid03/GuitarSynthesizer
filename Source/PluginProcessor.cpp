@@ -11,6 +11,7 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <iostream>
 
 //==============================================================================
 GuitarSynthesizerAudioProcessor::GuitarSynthesizerAudioProcessor()
@@ -30,6 +31,7 @@ GuitarSynthesizerAudioProcessor::GuitarSynthesizerAudioProcessor()
     state.state.addChild({ "uiState", { { "width",  720 }, { "height", 240 } }, {} }, -1, nullptr);
     guitarBodyModel.initialize();
     initialiseSynth();
+    std::cout << "init" << std::endl;
 }
 
 GuitarSynthesizerAudioProcessor::~GuitarSynthesizerAudioProcessor()
@@ -105,6 +107,7 @@ void GuitarSynthesizerAudioProcessor::prepareToPlay (double sampleRate, int samp
     synth.setCurrentPlaybackSampleRate(sampleRate);
     keyboardState.reset();
     reset();
+    std::cout << "prepareToPlay: fs=" << sampleRate << std::endl;
 }
 
 void GuitarSynthesizerAudioProcessor::releaseResources()
@@ -141,7 +144,6 @@ void GuitarSynthesizerAudioProcessor::processBlock(juce::AudioBuffer<double>& bu
     auto gainParamValue = state.getParameter("gain")->getValue();
     auto numSamples = buffer.getNumSamples();
     auto numOfOutputChannels = getTotalNumOutputChannels();
-
     for (auto i = getTotalNumInputChannels(); i < numOfOutputChannels; ++i)
         buffer.clear(i, 0, numSamples);
 
@@ -152,8 +154,6 @@ void GuitarSynthesizerAudioProcessor::processBlock(juce::AudioBuffer<double>& bu
     // Apply our gain change to the outgoing data..
     gainParamValue *= 6e-06;
     applyGain(buffer, gainParamValue);
-
-    updateCurrentTimeInfoFromHost();
 }
 
 void GuitarSynthesizerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -167,9 +167,11 @@ void GuitarSynthesizerAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
 
     keyboardState.processNextMidiBuffer(midiMessages, 0, numSamples, true);
     synth.renderNextBlock(buffer, midiMessages, 0, numSamples);
+    
+    guitarBodyModel.filterBuffer(buffer);
+    // Apply our gain change to the outgoing data..
+    gainParamValue *= 6e-06;
     applyGain(buffer, gainParamValue);
-
-    updateCurrentTimeInfoFromHost();
 }
 
 //==============================================================================
@@ -241,25 +243,6 @@ void GuitarSynthesizerAudioProcessor::applyGain(juce::AudioBuffer<double>& buffe
 {
     for (auto channel = 0; channel < getTotalNumOutputChannels(); ++channel)
         buffer.applyGain(channel, 0, buffer.getNumSamples(), gainLevel);
-}
-
-void GuitarSynthesizerAudioProcessor::updateCurrentTimeInfoFromHost()
-{
-    const auto newInfo = [&]
-    {
-        if (auto* ph = getPlayHead())
-        {
-            juce::AudioPlayHead::CurrentPositionInfo result;
-
-            if (ph->getCurrentPosition(result))
-                return result;
-        }
-        juce::AudioPlayHead::CurrentPositionInfo result;
-        result.resetToDefault();
-        return result;
-    }();
-
-    lastPosInfo.set(newInfo);
 }
 
 

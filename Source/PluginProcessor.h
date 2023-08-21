@@ -70,7 +70,6 @@ public:
 private:
     //==============================================================================
     void initialiseSynth();
-    void updateCurrentTimeInfoFromHost();
     int start = 0;
     int delayPosition = 0;
 

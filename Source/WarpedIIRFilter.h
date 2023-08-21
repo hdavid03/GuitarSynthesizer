@@ -23,6 +23,7 @@ public:
     ~WarpedIIRFilter();
     double filterSample(double);
     void filterBuffer(juce::AudioBuffer<double>& buffer);
+    void filterBuffer(juce::AudioBuffer<float>& buffer);
     constexpr size_t getDegree();
     void initialize();
 
